@@ -7,7 +7,6 @@ description = "Safe Rust bindings for the Axis VDO (Video Capture) API"
 
 [dependencies]
 log = { workspace = true }
-thiserror = { workspace = true }
 vdo-sys = { workspace = true }
 glib-sys = { workspace = true }
 gobject-sys = { workspace = true }

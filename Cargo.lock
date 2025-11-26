@@ -3164,7 +3164,6 @@ dependencies = [
  "glib-sys",
  "gobject-sys",
  "log",
- "thiserror 1.0.69",
  "vdo-sys",
 ]
 

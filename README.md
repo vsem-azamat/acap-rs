@@ -156,8 +156,8 @@ Each crate has a corresponding `*-sys`, which is omitted for brevity.
   - Status: ⚠️ Alpha
   - Documentation: [Source code](crates/mdb/src/lib.rs)
 - `vdo`: Bindings for the Video Capture API.
-  - Status: 💡 Started
-  - Documentation: [Pull request](https://github.com/AxisCommunications/acap-rs/pull/153)
+  - Status: ⚠️ Alpha
+  - Documentation: [Source code](crates/vdo/src/lib.rs)
 
 ### VAPIX API bindings
 

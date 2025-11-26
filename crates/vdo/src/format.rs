@@ -48,6 +48,11 @@ impl Format {
         }
     }
 
+    /// Returns the format as a 32-bit integer value.
+    pub(crate) fn as_i32(self) -> i32 {
+        self.to_raw().0
+    }
+
     /// Converts from the raw VDO format type.
     #[allow(dead_code)]
     pub(crate) fn from_raw(raw: RawVdoFormat) -> Option<Self> {

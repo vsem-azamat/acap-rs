@@ -5,6 +5,7 @@
 use std::ptr;
 
 use glib_sys::GError;
+use log::warn;
 use vdo_sys::VdoStream as RawVdoStream;
 
 use crate::buffer::{Buffer, StandaloneBuffer};
@@ -228,43 +229,57 @@ impl StreamSettings {
 
     /// Sets the video format.
     pub fn format(mut self, format: Format) -> Self {
-        let _ = self.map.set_uint32("format", format.to_raw().0 as u32);
+        if let Err(e) = self.map.set_int32("format", format.as_i32()) {
+            warn!("Failed to set format: {}", e);
+        }
         self
     }
 
     /// Sets the video width in pixels.
     pub fn width(mut self, width: u32) -> Self {
-        let _ = self.map.set_uint32("width", width);
+        if let Err(e) = self.map.set_uint32("width", width) {
+            warn!("Failed to set width: {}", e);
+        }
         self
     }
 
     /// Sets the video height in pixels.
     pub fn height(mut self, height: u32) -> Self {
-        let _ = self.map.set_uint32("height", height);
+        if let Err(e) = self.map.set_uint32("height", height) {
+            warn!("Failed to set height: {}", e);
+        }
         self
     }
 
     /// Sets the framerate in frames per second.
     pub fn framerate(mut self, fps: f64) -> Self {
-        let _ = self.map.set_double("framerate", fps);
+        if let Err(e) = self.map.set_double("framerate", fps) {
+            warn!("Failed to set framerate: {}", e);
+        }
         self
     }
 
     /// Sets the buffer count for the stream.
     pub fn buffer_count(mut self, count: u32) -> Self {
-        let _ = self.map.set_uint32("buffer.count", count);
+        if let Err(e) = self.map.set_uint32("buffer.count", count) {
+            warn!("Failed to set buffer count: {}", e);
+        }
         self
     }
 
     /// Sets a custom setting.
     pub fn set(mut self, key: &str, value: u32) -> Self {
-        let _ = self.map.set_uint32(key, value);
+        if let Err(e) = self.map.set_uint32(key, value) {
+            warn!("Failed to set {}: {}", key, e);
+        }
         self
     }
 
     /// Sets a custom string setting.
     pub fn set_string(mut self, key: &str, value: &str) -> Self {
-        let _ = self.map.set_string(key, value);
+        if let Err(e) = self.map.set_string(key, value) {
+            warn!("Failed to set {}: {}", key, e);
+        }
         self
     }
 
