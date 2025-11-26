@@ -1,37 +1,24 @@
-//! Video format types for the VDO API.
+//! Video format types.
 
 use vdo_sys::VdoFormat as RawVdoFormat;
 
-/// Video format types supported by VDO.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Format {
-    /// H.264 encoded video.
     H264,
-    /// H.265 (HEVC) encoded video.
     H265,
-    /// JPEG compressed frames.
     Jpeg,
-    /// Raw YUV frames (typically NV12).
     Yuv,
-    /// Raw Bayer pattern data.
     Bayer,
-    /// IVS format.
     Ivs,
-    /// Raw format.
     Raw,
-    /// RGBA format (32-bit with alpha).
     Rgba,
-    /// RGB format (24-bit).
     Rgb,
-    /// Planar RGB format.
     PlanarRgb,
-    /// AV1 encoded video.
     Av1,
 }
 
 impl Format {
-    /// Converts to the raw VDO format type.
     pub(crate) fn to_raw(self) -> RawVdoFormat {
         match self {
             Self::H264 => RawVdoFormat::VDO_FORMAT_H264,
@@ -48,12 +35,10 @@ impl Format {
         }
     }
 
-    /// Returns the format as a 32-bit integer value.
     pub(crate) fn as_i32(self) -> i32 {
         self.to_raw().0
     }
 
-    /// Converts from the raw VDO format type.
     #[allow(dead_code)]
     pub(crate) fn from_raw(raw: RawVdoFormat) -> Option<Self> {
         match raw {
@@ -92,64 +77,37 @@ impl std::fmt::Display for Format {
     }
 }
 
-/// Frame type information.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum FrameType {
-    /// No specific frame type.
     None,
-    /// H.264 SPS (Sequence Parameter Set).
     H264Sps,
-    /// H.264 PPS (Picture Parameter Set).
     H264Pps,
-    /// H.264 SEI (Supplemental Enhancement Information).
     H264Sei,
-    /// H.264 IDR frame (keyframe).
     H264Idr,
-    /// H.264 I-frame.
     H264I,
-    /// H.264 P-frame.
     H264P,
-    /// H.264 B-frame.
     H264B,
-    /// H.265 SPS (Sequence Parameter Set).
     H265Sps,
-    /// H.265 PPS (Picture Parameter Set).
     H265Pps,
-    /// H.265 VPS (Video Parameter Set).
     H265Vps,
-    /// H.265 SEI (Supplemental Enhancement Information).
     H265Sei,
-    /// H.265 IDR frame (keyframe).
     H265Idr,
-    /// H.265 I-frame.
     H265I,
-    /// H.265 P-frame.
     H265P,
-    /// H.265 B-frame.
     H265B,
-    /// JPEG frame.
     Jpeg,
-    /// YUV frame.
     Yuv,
-    /// Raw frame.
     Raw,
-    /// RGBA frame.
     Rgba,
-    /// RGB frame.
     Rgb,
-    /// Planar RGB frame.
     PlanarRgb,
-    /// AV1 keyframe.
     Av1Key,
-    /// AV1 inter frame.
     Av1Inter,
-    /// AV1 bidirectional frame.
     Av1Bidi,
 }
 
 impl FrameType {
-    /// Returns `true` if this is a keyframe.
     pub fn is_keyframe(&self) -> bool {
         matches!(
             self,

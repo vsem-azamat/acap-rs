@@ -1,57 +1,34 @@
-//! Error types for the VDO API.
+//! Error types for VDO operations.
 
 use std::ffi::CStr;
 use std::fmt;
 
 use glib_sys::GError;
 
-/// Error codes returned by the VDO API.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum ErrorCode {
-    /// Resource not found.
     NotFound,
-    /// Resource already exists.
     Exists,
-    /// Invalid argument provided.
     InvalidArgument,
-    /// Permission denied.
     PermissionDenied,
-    /// Operation not supported.
     NotSupported,
-    /// Resource is closed.
     Closed,
-    /// Resource is busy.
     Busy,
-    /// I/O error.
     Io,
-    /// HAL error.
     Hal,
-    /// D-Bus error.
     Dbus,
-    /// Out of memory.
     Oom,
-    /// Resource is idle.
     Idle,
-    /// No data available.
     NoData,
-    /// No buffer space available.
     NoBufferSpace,
-    /// Buffer failure.
     BufferFailure,
-    /// Interface is down.
     InterfaceDown,
-    /// General failure.
     Failed,
-    /// Fatal error.
     Fatal,
-    /// Not controlled.
     NotControlled,
-    /// No event.
     NoEvent,
-    /// No video.
     NoVideo,
-    /// Unknown error code.
     Unknown(u32),
 }
 
@@ -113,7 +90,6 @@ impl fmt::Display for ErrorCode {
     }
 }
 
-/// Error type for VDO operations.
 #[derive(Debug)]
 pub struct Error {
     code: ErrorCode,
@@ -121,12 +97,6 @@ pub struct Error {
 }
 
 impl Error {
-    /// Creates a new error from a GError pointer.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that `error` is either null or a valid pointer to a GError.
-    /// If not null, this function takes ownership of the GError and will free it.
     pub(crate) unsafe fn from_gerror(error: *mut GError) -> Option<Self> {
         if error.is_null() {
             return None;
@@ -144,13 +114,11 @@ impl Error {
             )
         };
 
-        // Free the GError
         glib_sys::g_error_free(error);
 
         Some(Self { code, message })
     }
 
-    /// Creates a new error with a custom message.
     pub(crate) fn new(code: ErrorCode, message: impl Into<String>) -> Self {
         Self {
             code,
@@ -158,12 +126,10 @@ impl Error {
         }
     }
 
-    /// Returns the error code.
     pub fn code(&self) -> ErrorCode {
         self.code
     }
 
-    /// Returns the error message, if any.
     pub fn message(&self) -> Option<&str> {
         self.message.as_deref()
     }
@@ -180,10 +146,8 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// Result type for VDO operations.
 pub type Result<T> = std::result::Result<T, Error>;
 
-/// Helper macro for checking GError and converting to Result.
 macro_rules! check_gerror {
     ($error:expr) => {{
         let err = unsafe { $crate::error::Error::from_gerror($error) };
