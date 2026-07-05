@@ -145,7 +145,7 @@ impl VdoError {
             x if x == vdo_sys::VDO_ERROR_FATAL.0 as i32 => "VDO_ERROR_FATAL",
             x if x == vdo_sys::VDO_ERROR_NOT_CONTROLLED.0 as i32 => "VDO_ERROR_NOT_CONTROLLED",
             x if x == vdo_sys::VDO_ERROR_NO_EVENT.0 as i32 => "VDO_ERROR_NO_EVENT",
-            x if x == vdo_sys::VDO_ERROR_NO_VIDEO.0 as i32 => "VDO_ERROR_NO_VIDEO",
+            // VDO_ERROR_NO_VIDEO (code 21) not available in SDK 1.15.1 (AXIS OS 11)
             _ => "VDO_ERROR_UNKNOWN",
         }
     }

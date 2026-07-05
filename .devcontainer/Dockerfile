@@ -1,9 +1,9 @@
 ARG REPO=axisecp
 ARG SDK=acap-native-sdk
 # Keep in sync with `install-sdk.sh` and `on-host-workflow.yml`.
-ARG UBUNTU_VERSION=24.04
+ARG UBUNTU_VERSION=22.04
 # Keep in sync with `install-sdk.sh`.
-ARG VERSION=12.1.0
+ARG VERSION=1.15.1
 ARG BASE_IMAGE=debian:trixie-20260223
 
 FROM ${REPO}/${SDK}:${VERSION}-aarch64-ubuntu${UBUNTU_VERSION} AS sdk-aarch64
