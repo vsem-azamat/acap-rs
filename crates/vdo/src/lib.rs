@@ -145,9 +145,16 @@ impl VdoError {
             x if x == vdo_sys::VDO_ERROR_FATAL.0 as i32 => "VDO_ERROR_FATAL",
             x if x == vdo_sys::VDO_ERROR_NOT_CONTROLLED.0 as i32 => "VDO_ERROR_NOT_CONTROLLED",
             x if x == vdo_sys::VDO_ERROR_NO_EVENT.0 as i32 => "VDO_ERROR_NO_EVENT",
-            // VDO_ERROR_NO_VIDEO (code 21) not available in SDK 1.15.1 (AXIS OS 11)
+            // VDO_ERROR_NO_VIDEO is code 21 in newer SDKs, but the constant is
+            // not available in SDK 1.15.1 (AXIS OS 11).
+            21 => "VDO_ERROR_NO_VIDEO",
             _ => "VDO_ERROR_UNKNOWN",
         }
+    }
+
+    /// Returns true for transient non-blocking reads where no video frame is available yet.
+    pub fn is_no_data(&self) -> bool {
+        matches!(self.code_name(), "VDO_ERROR_NO_DATA" | "VDO_ERROR_NO_VIDEO")
     }
 
     pub fn code(&self) -> i32 {
@@ -210,6 +217,7 @@ pub struct StreamBuilder {
     channel: u32,
     resolution: Resolution,
     framerate: u32,
+    socket_blocking: bool,
 }
 
 impl Default for StreamBuilder {
@@ -220,6 +228,7 @@ impl Default for StreamBuilder {
             channel: 0,
             resolution: Resolution::Native,
             framerate: 0,
+            socket_blocking: true,
         }
     }
 }
@@ -262,6 +271,15 @@ impl StreamBuilder {
         self
     }
 
+    /// Controls whether retrieving a frame blocks until data is available.
+    ///
+    /// Default: `true`, matching the VDO SDK default. Set to `false` for
+    /// applications that need to poll for shutdown or other control events.
+    pub fn socket_blocking(mut self, blocking: bool) -> Self {
+        self.socket_blocking = blocking;
+        self
+    }
+
     /// Builds the stream.
     ///
     /// Returns an error if the stream could not be created (e.g., invalid format
@@ -277,6 +295,7 @@ impl StreamBuilder {
         if self.framerate > 0 {
             map.set_u32(c"framerate", self.framerate);
         }
+        map.set_bool(c"socket.blocking", self.socket_blocking);
         map.set_u32(c"buffer.count", self.buffer_count);
         // Always use INFINITE strategy; EXPLICIT is not exposed because it
         // requires unsafe application-managed buffer allocation.
@@ -567,6 +586,16 @@ mod unit_tests {
     }
 
     #[test]
+    fn no_video_code_maps_without_sdk_constant() {
+        let err = VdoError {
+            code: 21,
+            message: "test".to_string(),
+        };
+        expect!["VDO_ERROR_NO_VIDEO"].assert_eq(err.code_name());
+        assert!(err.is_no_data());
+    }
+
+    #[test]
     fn error_display() {
         let err = VdoError {
             code: vdo_sys::VDO_ERROR_BUSY.0 as i32,
@@ -582,6 +611,7 @@ mod unit_tests {
         assert_eq!(builder.channel, 0);
         assert_eq!(builder.buffer_count, 3);
         assert_eq!(builder.resolution, Resolution::Native);
+        assert!(builder.socket_blocking);
     }
 
     #[test]
@@ -594,7 +624,8 @@ mod unit_tests {
                 height: 720,
             })
             .framerate(30)
-            .buffers(5);
+            .buffers(5)
+            .socket_blocking(false);
 
         assert_eq!(builder.format, VdoFormat::VDO_FORMAT_JPEG);
         assert_eq!(builder.channel, 1);
@@ -607,6 +638,7 @@ mod unit_tests {
         );
         assert_eq!(builder.framerate, 30);
         assert_eq!(builder.buffer_count, 5);
+        assert!(!builder.socket_blocking);
     }
 
     #[test]
